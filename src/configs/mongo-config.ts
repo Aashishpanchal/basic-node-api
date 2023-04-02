@@ -10,7 +10,7 @@ mongoose.connection.on("error", (err) => {
   process.exit(1);
 });
 
-export default async function dbConfig() {
+export default async function mongoConfig() {
   const uri =
     DB.type === "local"
       ? `mongodb://0.0.0.0:${DB.port}/${DB.database_name}`

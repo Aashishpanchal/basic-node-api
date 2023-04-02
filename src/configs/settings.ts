@@ -21,8 +21,13 @@ export const DB = {
 
 // jwt auth
 export const JWT = {
+  access_token_lifetime: "1h",
+  refresh_token_lifetime: "2h",
+  auth_header_type: ["bearer", "token"],
   refresh_secret_key: env.str("REFRESH_SECRET_KEY"),
   access_secret_key: env.str("ACCESS_SECRET_KEY"),
+  auth_header_name: "authorization",
+  issuer: "e_cart.com",
 };
 
 export const ENCRYPT_SALT = 10;

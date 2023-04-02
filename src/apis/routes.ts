@@ -1,10 +1,10 @@
 import { createRouter } from "../core/custom-router";
-import authRouter from "./auth/router";
+import tokenRouter from "./token/router";
 import userRouter from "./users/router";
 
 const apiRouter = createRouter([
   { url: "/users", childRouter: userRouter },
-  { url: "/auth", childRouter: authRouter },
+  { url: "/token", childRouter: tokenRouter },
 ]);
 
 export default apiRouter;

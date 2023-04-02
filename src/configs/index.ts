@@ -1,2 +1,2 @@
 export * as settings from "./settings";
-export { default as dbConfig } from "./db-config";
+export { default as mongoConfig } from "./mongo-config";

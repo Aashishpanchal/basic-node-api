@@ -27,3 +27,20 @@ export class userUV extends userIdParam {
     last_name: Joi.string().optional(),
   });
 }
+
+export class userListQuery extends joiValidate {
+  protected query = Joi.object({
+    sort: Joi.string()
+      .optional()
+      .default([])
+      .custom((value, helper) => {
+        try {
+          return (value as string).split(",").map((item) => item.trim());
+        } catch (error) {
+          return helper.message({
+            custom: `Failed to convert query key sort ${value} to array`,
+          });
+        }
+      }),
+  });
+}

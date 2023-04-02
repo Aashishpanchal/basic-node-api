@@ -1,25 +1,23 @@
 import { hash, compare } from "bcrypt";
 import mongoose, { Model, Schema, HydratedDocument } from "mongoose";
 import { ENCRYPT_SALT } from "../../configs/settings";
+import { IUser } from "../../../types";
 
-// User Interface
-export interface IUser {
-  username: string;
-  email: string;
-  password: string;
-  first_name: string;
-  last_name: string;
-}
-
-// UserMethods Interface
+// User-Methods Interface
 export interface IUserMethods {
   isValidPassword(password: string): Promise<boolean>;
 }
 
-// type of UserModel
-type UserModel = Model<IUser, {}, IUserMethods>;
-// type of UserDocument
-type UserDocument = HydratedDocument<IUser>;
+// type of User-Document
+export type UserDocument = HydratedDocument<IUser, IUserMethods>;
+
+// type of User-Model
+interface UserModel extends Model<IUser, {}, IUserMethods> {
+  findByUsernameAndPassword(
+    email: string,
+    password: string
+  ): Promise<UserDocument>;
+}
 
 // make schema of user
 const usersSchema = new Schema<IUser, UserModel, IUserMethods>(
@@ -46,6 +44,18 @@ const usersSchema = new Schema<IUser, UserModel, IUserMethods>(
       type: String,
       default: "",
     },
+    is_active: {
+      type: Boolean,
+      default: true,
+    },
+    is_staff: {
+      type: Boolean,
+      default: false,
+    },
+    is_superuser: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,
@@ -59,6 +69,22 @@ usersSchema.pre<IUser>("save", async function (next) {
   next();
 });
 
+// add static methods
+usersSchema.static(
+  "findByUsernameAndPassword",
+  async function (username, password) {
+    const user = await this.findOne<UserDocument>({ username }, "+password");
+
+    if (!user) return;
+
+    const isPwdMatched = await user.isValidPassword(password);
+
+    if (!isPwdMatched) return;
+
+    return user;
+  }
+);
+
 // add definitions of some user-model methods
 usersSchema.method(
   "isValidPassword",
@@ -66,6 +92,7 @@ usersSchema.method(
     return await compare(password, this.password);
   }
 );
+
 // some other changes
 usersSchema.virtual("id").get(function () {
   return this._id.toHexString();
@@ -81,18 +108,13 @@ usersSchema.set("toJSON", {
         : ""; // make full_name using first_name and last_name
 
     delete ret._id;
+    delete ret.createdAt;
+    delete ret.updatedAt;
+    delete ret.__v;
     ret.id = ret.id;
-    // return specific data
-    return {
-      id: ret.id,
-      username: ret.username,
-      email: ret.email,
-      first_name: ret.first_name,
-      last_name: ret.last_name,
-      full_name,
-    };
+    ret.full_name = full_name;
   },
 });
 
 // make UserModel using user-schema
-export const Users = mongoose.model("User", usersSchema);
+export const Users = mongoose.model<IUser, UserModel>("User", usersSchema);

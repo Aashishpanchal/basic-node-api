@@ -36,8 +36,8 @@ export class Controller {
         .setWrapper(method)
         .call(instance, (instance as any)[method]);
       map.set(method, [
-        ...instance.middlewares,
         ...instance.setMiddlewares(method),
+        ...instance.middlewares,
         handler,
       ]);
     });
