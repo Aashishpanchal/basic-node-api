@@ -111,6 +111,7 @@ usersSchema.set("toJSON", {
     delete ret.createdAt;
     delete ret.updatedAt;
     delete ret.__v;
+    delete ret.password;
     ret.id = ret.id;
     ret.full_name = full_name;
   },

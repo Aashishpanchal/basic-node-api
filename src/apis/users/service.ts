@@ -57,22 +57,12 @@ class UserService {
   }
 
   // findAll method to help get all user data document from mongodb database
-  async findAll(sort: string[]) {
-    const users = await Users.find()
-      .select([
-        "id",
-        "username",
-        "email",
-        "first_name",
-        "last_name",
-        "is_staff",
-        "is_active",
-        "is_superuser",
-      ])
-      .sort(sort.reduce((p, c) => ({ ...p, [c]: 1 }), {}));
-
+  async findAll(fields: string[]) {
+    const users = await Users.find().select(fields).sort({ username: "asc" });
     return users;
   }
+
+  async pagination() {}
 
   // login method to help check user credentials is valid or not
   async login(username: string, password: string): Promise<UserDocument> {

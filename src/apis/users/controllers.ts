@@ -69,9 +69,12 @@ export class UserListController extends Controller {
 
   // get all user using pagination
   async get(req: Request, res: Response) {
-    const { query } = await userListQuery.isValid<any, any, any>(req);
+    const {
+      query: { fields, sort, page, size },
+    } = await userListQuery.isValid<any, any, any>(req);
+    console.log(page, size, sort);
     // get All user data from database
-    const data = await userService.findAll(query.sort as string[]);
+    const data = await userService.findAll(fields);
     // return res of get http method
     res.status(httpStatus.OK).json({ success: true, data });
   }

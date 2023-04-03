@@ -29,16 +29,42 @@ export class userUV extends userIdParam {
 }
 
 export class userListQuery extends joiValidate {
+  default_selected_fields = [
+    "id",
+    "username",
+    "email",
+    "first_name",
+    "last_name",
+    "is_staff",
+    "is_active",
+    "is_superuser",
+  ];
+
+  max_page_size = 10;
+
   protected query = Joi.object({
-    sort: Joi.string()
-      .optional()
-      .default([])
+    sort: Joi.string().default(""),
+    page: Joi.number().integer().positive().max(this.max_page_size),
+    size: Joi.number().integer().positive(),
+    fields: Joi.string()
+      .default(this.default_selected_fields)
+      // custom function
       .custom((value, helper) => {
         try {
-          return (value as string).split(",").map((item) => item.trim());
+          // make array fields
+          const array = (value as string).split(",").map((item) => item.trim());
+          // check fields
+          for (const iterator of array) {
+            if (!this.default_selected_fields.includes(iterator))
+              // fields match throw error
+              return helper.message({
+                custom: `you can only take these fields ${this.default_selected_fields}`,
+              });
+          }
+          return array;
         } catch (error) {
           return helper.message({
-            custom: `Failed to convert query key sort ${value} to array`,
+            custom: `Failed to convert ${value} to array`,
           });
         }
       }),
